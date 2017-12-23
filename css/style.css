@@ -13,11 +13,13 @@ h3 {
 }
 
 .container {
-  width: 40em;
+  width: 30em;
   margin: 10px auto;
 }
 
 .ac-label {
+
+
   direction: rtl;
   font-weight: 700;
   position: relative;
@@ -27,6 +29,7 @@ h3 {
   cursor: pointer;
   background-color: whiteSmoke;
   transition: background-color .15s ease-in-out;
+ 
 }
 
 .ac-input:checked + label, .ac-label:hover {
@@ -37,7 +40,7 @@ h3 {
   content: "+";
   position: absolute;
   display: block;
-  right: 100%;
+  right: 0;
   top: 0;
   width: 2em;
   height: 100%;
@@ -77,6 +80,7 @@ h3 {
   font-weight: 600;
   padding: .5em 2em;
   margin-bottom: 0;
+  
 }
 
 .ac-sub .ac-label:checked {
