@@ -14,12 +14,11 @@ h3 {
 
 .container {
   width: 30em;
-  margin: 10px auto;
+  margin: 10px 20px;
+  float:right;
 }
 
 .ac-label {
-
-
   direction: rtl;
   font-weight: 700;
   position: relative;
@@ -29,7 +28,6 @@ h3 {
   cursor: pointer;
   background-color: whiteSmoke;
   transition: background-color .15s ease-in-out;
- 
 }
 
 .ac-input:checked + label, .ac-label:hover {
@@ -80,7 +78,7 @@ h3 {
   font-weight: 600;
   padding: .5em 2em;
   margin-bottom: 0;
-  
+
 }
 
 .ac-sub .ac-label:checked {
@@ -98,5 +96,15 @@ h3 {
 }
 
 .ac-sub-text {
-  padding: 0 1em 0 2em;
+  font-weight: 500;
+  direction: rtl;
+  padding: 1em 1em 0 2em;
+  background-color: ghostwhite;
+}
+
+
+li {
+    padding: 1em;
+    background: #cce5ff;
+    margin: 5px;
 }
