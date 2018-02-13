@@ -24,6 +24,7 @@ h3 {
   font-weight: 700;
   position: relative;
   padding: .5em 1em;
+  padding-right: 2.5em;
   margin-bottom: .5em;
   display: block;
   cursor: pointer;
