@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<link rel="stylesheet" href="css/style.css">
+ <link rel="stylesheet" href="css/style.css"> 
 <style>
 * {
     box-sizing: border-box;
@@ -13,6 +13,7 @@
 
 body {
     margin: 0;
+    max-height: 100%;
 }
 /* Style the header */
 .header {
@@ -33,7 +34,7 @@ body {
     -ms-flex: 1;
     flex: 1;
     padding: 10px;
-    height: 300px; /* Should be removed. Only for demonstration */
+    height: 600px; /* Should be removed. Only for demonstration */
     overflow-y: scroll;
 }
 
@@ -52,6 +53,15 @@ body {
     }
 }
 </style>
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script>
+  $( function() {
+    $( "#sortable1, #sortable2" ).sortable({
+      connectWith: ".connectedSortable"
+    }).disableSelection();
+  } );
+  </script>
 </head>
 <body>
 
@@ -63,8 +73,26 @@ body {
 </div>
 
 <div class="row">
-  <div class="column" style="background-color:#aaa;">Column1</div>
-  <div class="column" style="background-color:#bbb;">Column2</div>
+  <div class="column" style="background-color:#aaa;">
+        <ul id="sortable1" class="connectedSortable">
+        <li>a</li>
+        <li>a</li>
+        <li>a</li>
+        <li>a</li>
+        <li>a</li>
+        <li>a</li>
+      </ul>
+  </div>
+  <div class="column" style="background-color:#bbb;">
+      <ul id="sortable2" class="connectedSortable">
+        <li>a</li>
+        <li>a</li>
+        <li>a</li>
+        <li>a</li>
+        <li>a</li>
+        <li>a</li>
+      </ul>
+  </div>
   <div class="column" style="background-color:#ccc;">
       
       
@@ -80,7 +108,7 @@ body {
         <input class="ac-input" id="ac-2" name="ac-2" type="checkbox" />
         <label class="ac-label" for="ac-2">قرآن حفظ</label>
         <article class="ac-sub-text">
-          <ul style="list-style-type:square">
+          <ul id="sortable" style="list-style-type:square">
             <li>سورة النور من  1  إلى 5</li>
             <li>سورة النور من  6  إلى 10</li>
             <li>سورة النور من  11  إلى  15 </li>
