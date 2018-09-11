@@ -1,4 +1,7 @@
 from flask import Flask, render_template
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from models import Base, User, Subject
 app = Flask(__name__)
 
 #connect to the database and create a dtabase session
@@ -7,7 +10,6 @@ Base.metadata.bind = engine
 
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
-
 @app.route('/')
 def showHome():
 	#return("this page to show home page")
