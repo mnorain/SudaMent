@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request
+from flask import flash, jsonify
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from models import Base, User, Subject
@@ -149,6 +150,9 @@ def getUserID(email):
 def showHome():
 	#return("this page to show home page")
        return render_template('home.html')
+@app.route('/welcome')
+def welcomeStudent():
+       return render_template('studenPage.html')
 	
 if __name__ == '__main__':
         app.secret_key = 'super_secret_key'
