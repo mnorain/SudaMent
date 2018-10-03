@@ -108,12 +108,15 @@ def gconnect():
     login_session['username'] = data['name']
     login_session['picture'] = data['picture']
     login_session['email'] = data['email']
+    login_session['role'] = 'student'
 
     # see if a user exists, if not make a new one
 
     user_id = getUserID(login_session['email'])
     if not user_id:
+            
         user_id = createUser(login_session)
+        createAdmin(login_session['email'])
     login_session['user_id'] = user_id
 
     output = ''
@@ -152,6 +155,7 @@ def gdisconnect():
         del login_session['username']
         del login_session['email']
         del login_session['picture']
+        del login_session['role']
         response = make_response(json.dumps('Successfully disconnected.'), 200)
         response.headers['Content-Type'] = 'application/json'
         return response
@@ -165,7 +169,7 @@ def gdisconnect():
 
 def createUser(login_session):
        newUser = User(name=login_session['username'], email=login_session[
-                      'email'], picture=login_session['picture'])
+                      'email'], picture=login_session['picture'],role=login_session['role'])
        session.add(newUser)
        session.commit
        user = session.query(User).filter_by(email=login_session['email']).one()
@@ -180,14 +184,41 @@ def getUserID(email):
               return user.id
        except:
               return None
+       
+def createAdmin(email):
+        try:
+               if email=='raniana30@gmail.com':
+                      user = session.query(User).filter_by(email=email).one()
+                      user.role = 'admin'
+                      session.add(user)
+                      session.commit()
+               return user.id
+        except:
+               return None
 
+              
 @app.route('/')
 def showHome():
 	#return("this page to show home page")
        return render_template('home.html')
 @app.route('/welcome')
 def welcomeStudent():
-       return render_template('studenPage.html')
+       userID=login_session['user_id']
+       user = session.query(User).filter_by(id=userID).one()
+       return render_template('studenPage.html',name=user.role)
+@app.route('/mentor/login')
+def mentorLogin():
+       return"this page will display a form for mentors to log in"
+@app.route('/mentor')
+def showMentor():
+       return "this page will display mentor information along with the assosiated students"
+@app.route('/mentor/add')
+def addMentor():       
+       return"this page is to add a mentor not sure yet by manager or by mentor"
+@app.route('/mentor/delete')
+def deleteMentor():
+       return"this page is for deleting a mentor"
+
 	
 if __name__ == '__main__':
         app.secret_key = 'super_secret_key'
