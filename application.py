@@ -22,12 +22,11 @@ CLIENT_ID = json.loads(
 Application_NAME = "sudanMentors"
 
 #connect to the database and create a dtabase session
-engine = create_engine('sqlite:///studentsmentors.db')
+engine = create_engine('sqlite:///studentsmentors.db?check_same_thread=False')
 Base.metadata.bind = engine
 
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
-session.rollback()
 
 
 @app.route('/login')
@@ -108,7 +107,8 @@ def gconnect():
     login_session['username'] = data['name']
     login_session['picture'] = data['picture']
     login_session['email'] = data['email']
-    login_session['role'] = 'student'
+    login_session['role'] = 'user'
+    
 
     # see if a user exists, if not make a new one
 
@@ -116,7 +116,7 @@ def gconnect():
     if not user_id:
             
         user_id = createUser(login_session)
-        createAdmin(login_session['email'])
+        #createAdmin(login_session['email'])
     login_session['user_id'] = user_id
 
     output = ''
@@ -156,6 +156,7 @@ def gdisconnect():
         del login_session['email']
         del login_session['picture']
         del login_session['role']
+        
         response = make_response(json.dumps('Successfully disconnected.'), 200)
         response.headers['Content-Type'] = 'application/json'
         return response
@@ -171,7 +172,7 @@ def createUser(login_session):
        newUser = User(name=login_session['username'], email=login_session[
                       'email'], picture=login_session['picture'],role=login_session['role'])
        session.add(newUser)
-       session.commit
+       session.commit()
        user = session.query(User).filter_by(email=login_session['email']).one()
        return user.id
 def getUserInfo(user_id):
@@ -202,10 +203,44 @@ def showHome():
 	#return("this page to show home page")
        return render_template('home.html')
 @app.route('/welcome')
-def welcomeStudent():
+def welcome():
+       return"welcome,click here to go to your page"
+@app.route('/welcome/user')
+def welcomeUser():
        userID=login_session['user_id']
        user = session.query(User).filter_by(id=userID).one()
-       return render_template('studenPage.html',name=user.role)
+       if user.role== 'user':
+              return"You Are Not Registered Yet"
+       elif user.role=='student':
+              return render_template('studenPage.html',name=user.role)
+       elif user.role=='mentor':
+              return render_template('mentorPage.html')
+@app.route('/admin/users')
+def showUsers():
+       users=session.query(User).all()
+       if users:
+              return render_template('showusers.html', users=users)
+       else:
+              return"there are no users to show"
+@app.route('/admin/users/<int:userID>')
+def showUser(userID):
+       #return "this page is to show user informations"
+       user=session.query(User).filter_by(id=userID).one()
+       return render_template('showuser.html',user=user)
+@app.route('/admin/users/<int:userID>/edit', methods=['GET','POST'])
+def editUser(userID):
+       userToEdit=session.query(User).filter_by(id=userID).one()
+       if request.method=='POST':
+              if request.form['role']:
+                     userToEdit.role = request.form['role']
+              session.add(userToEdit)
+              session.commit()
+              return redirect(url_for('showUser',userID=userToEdit.id))
+       else:
+              return render_template('edituser.html', user=userToEdit)
+       
+              
+       
 @app.route('/mentor/login')
 def mentorLogin():
        return"this page will display a form for mentors to log in"

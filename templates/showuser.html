@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+      
+       <h2>{{user.name}}</h2>
+       <label>Email:</label>
+       {{user.email}}
+       </br>
+       <label>User Role:</label>
+       {{user.role}}
+       </br>
+    <a href="{{url_for('editUser', userID=user.id)}}"><button>Edit</button></a> 
+</body>
+</html>

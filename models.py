@@ -21,7 +21,7 @@ class User(Base):
     name = Column(String(250), nullable=False)
     email = Column(String(250), nullable=False)
     picture = Column(String(250))
-    role = Column(String(250))                   
+    role = Column(String(250), nullable=True)                   
 
 class Subject(Base):
     __tablename__ = 'subject'

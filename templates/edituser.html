@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+       <h3>Edit User</h3>
+       <form action="{{url_for('editUser',userID=user.id)}}" method="post">
+       	<label>Role:</label>
+       	<input type="text" maxlength="30" name="role" placeholder="{{user.role}}">
+       	<button type="submit">Submit</button>
+       </form>
+</body>
+</html>
