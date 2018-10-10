@@ -5,5 +5,10 @@
 </head>
 <body>
      <h1>This is the mentor page</h1>
+     {%for student in students%}
+         <li>
+         	{{student.name}}
+         </li>
+     {%endfor%}    
 </body>
 </html>

@@ -4,14 +4,14 @@
 	<title></title>
 </head>
 <body>
-       <h3>Edit User</h3>
+       <h3>Edit User "{{user.name}}"</h3>
        <form action="{{url_for('editUser',userID=user.id)}}" method="post">
        	<label>Role:          </label>
        	<input type="text" maxlength="30" name="role" placeholder="{{user.role}}">
        </br>
        </br>
-       	<label>Mentor's Email:</label>
-       	<input type="text" maxlength="50" name="email">
+       	<label>Mentor's ID:</label>
+       	<input type="text" maxlength="50" name="id">
        </br>
        </br>
        	<button type="submit">Submit</button>

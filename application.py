@@ -201,9 +201,11 @@ def welcomeUser():
        if user.role== 'user':
               return"You Are Not Registered Yet"
        elif user.role=='student':
-              return render_template('studenPage.html',name=user.role)
+              mentor=session.query(User).filter_by(id=user.mentor_id).one()
+              return render_template('studenPage.html',user=user,mentor=mentor)
        elif user.role=='mentor':
-              return render_template('mentorPage.html')
+              students=session.query(User).filter_by(mentor_id=user.id).all()
+              return render_template('mentorPage.html', students=students)
        elif user.role=='admin':
               return render_template('adminPage.html')
 @app.route('/admin/users', methods = ['GET'])
@@ -235,22 +237,24 @@ def showUser(userID):
               return redirect(url_for('welcomeUser'))
 @app.route('/admin/users/<int:userID>/edit', methods=['GET','POST'])
 def editUser(userID):
-       if 'username' not in login_session:
-              return redirect('/')
-       adminID=login_session['user_id']
-       user = session.query(User).filter_by(id=adminID).one()
-       if user.role=='admin':
+       #if 'username' not in login_session:
+              #return redirect('/')
+       #adminID=login_session['user_id']
+       #user = session.query(User).filter_by(id=adminID).one()
+       #if user.role=='admin':
               userToEdit=session.query(User).filter_by(id=userID).one()
               if request.method=='POST':
                      if request.form['role']:
                             userToEdit.role = request.form['role']
+                     if request.form['id']:
+                            userToEdit.mentor_id= request.form['id']
                      session.add(userToEdit)
                      session.commit()
                      return redirect(url_for('showUser',userID=userToEdit.id))
               else:
                      return render_template('edituser.html', user=userToEdit)
-       else:
-              return redirect(url_for('welcomeUser'))
+       #else:
+              #return redirect(url_for('welcomeUser'))
        
               
        
