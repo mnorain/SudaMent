@@ -186,16 +186,6 @@ def getUserID(email):
        except:
               return None
        
-def createAdmin(email):
-        try:
-               if email=='raniana30@gmail.com':
-                      user = session.query(User).filter_by(email=email).one()
-                      user.role = 'admin'
-                      session.add(user)
-                      session.commit()
-               return user.id
-        except:
-               return None
 
               
 @app.route('/')
@@ -203,10 +193,9 @@ def showHome():
 	#return("this page to show home page")
        return render_template('home.html')
 @app.route('/welcome')
-def welcome():
-       return"welcome,click here to go to your page"
-@app.route('/welcome/user')
 def welcomeUser():
+       if 'username' not in login_session:
+              return redirect('/')
        userID=login_session['user_id']
        user = session.query(User).filter_by(id=userID).one()
        if user.role== 'user':
@@ -215,44 +204,78 @@ def welcomeUser():
               return render_template('studenPage.html',name=user.role)
        elif user.role=='mentor':
               return render_template('mentorPage.html')
+       elif user.role=='admin':
+              return render_template('adminPage.html')
 @app.route('/admin/users')
 def showUsers():
-       users=session.query(User).all()
-       if users:
-              return render_template('showusers.html', users=users)
+       if 'username' not in login_session:
+              return redirect('/')
+       userID=login_session['user_id']
+       user = session.query(User).filter_by(id=userID).one()
+       if user.role == 'admin':
+              users=session.query(User).all()
+              if users:
+                     return render_template('showusers.html', users=users)
+              else:
+                     return"there are no users to show"
        else:
-              return"there are no users to show"
+              return redirect(url_for('welcomeUser'))
+       
 @app.route('/admin/users/<int:userID>')
 def showUser(userID):
        #return "this page is to show user informations"
-       user=session.query(User).filter_by(id=userID).one()
-       return render_template('showuser.html',user=user)
+       if 'username' not in login_session:
+              return redirect('/')
+       currentUserID=login_session['user_id']
+       currentUser= session.query(User).filter_by(id=currentUserID).one()
+       if currentUser.role=='admin':
+              user=session.query(User).filter_by(id=userID).one()
+              return render_template('showuser.html',user=user)
+       else:
+              return redirect(url_for('welcomeUser'))
 @app.route('/admin/users/<int:userID>/edit', methods=['GET','POST'])
 def editUser(userID):
-       userToEdit=session.query(User).filter_by(id=userID).one()
-       if request.method=='POST':
-              if request.form['role']:
-                     userToEdit.role = request.form['role']
-              session.add(userToEdit)
-              session.commit()
-              return redirect(url_for('showUser',userID=userToEdit.id))
+       if 'username' not in login_session:
+              return redirect('/')
+       userID=login_session['user_id']
+       user = session.query(User).filter_by(id=userID).one()
+       if user.role=='admin':
+              userToEdit=session.query(User).filter_by(id=userID).one()
+              if request.method=='POST':
+                     if request.form['role']:
+                            userToEdit.role = request.form['role']
+                     session.add(userToEdit)
+                     session.commit()
+                     return redirect(url_for('showUser',userID=userToEdit.id))
+              else:
+                     return render_template('edituser.html', user=userToEdit)
        else:
-              return render_template('edituser.html', user=userToEdit)
+              return redirect(url_for('welcomeUser'))
        
               
        
-@app.route('/mentor/login')
-def mentorLogin():
-       return"this page will display a form for mentors to log in"
-@app.route('/mentor')
-def showMentor():
-       return "this page will display mentor information along with the assosiated students"
-@app.route('/mentor/add')
-def addMentor():       
-       return"this page is to add a mentor not sure yet by manager or by mentor"
-@app.route('/mentor/delete')
-def deleteMentor():
-       return"this page is for deleting a mentor"
+@app.route('/admin/users/<int:userID>/delete')
+def deleteUser(userID):
+       if 'username' not in login_session:
+              return redirect('/')
+       currentUserID=login_session['user_id']
+       currentUser=session.query(User).filter_by(id=currentUserID).one()
+       if currentUser.role=='admin':
+              return"here we delete the user"
+       else:
+              return redirect(url_for('welcomeUser'))
+
+@app.route('/admin/users/add')
+def addUser():
+       if 'username' not in login_session:
+              return redirect('/')
+       currentUserID=login_session['user_id']
+       currentUser=session.query(User).filter_by(id=currentUserID).one()
+       if currentUser.role=='admin':
+              return'here we add a user'
+       else:
+              return redirect(url_for('welcomeUser'))
+       
 
 	
 if __name__ == '__main__':

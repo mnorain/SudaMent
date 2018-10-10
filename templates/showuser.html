@@ -13,5 +13,7 @@
        {{user.role}}
        </br>
     <a href="{{url_for('editUser', userID=user.id)}}"><button>Edit</button></a> 
+    <a href="{{url_for('deleteUser', userID=user.id)}}"><button>Delete</button></a>
+    <a href="{{url_for('showUsers')}}">Back to All Users</a>
 </body>
 </html>

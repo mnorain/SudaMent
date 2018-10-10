@@ -7,6 +7,8 @@
 	{%for user in users%}
 	   <li><a href="{{url_for('showUser', userID=user.id)}}"><h3>{{user.name}}</h3></a></li> 
 	{%endfor%}    
-
+    
+    <a href="{{url_for('addUser')}}">add a user</a>
+    <a href="{{url_for('welcomeUser')}}">back to admin page</a>
 </body>
 </html>
