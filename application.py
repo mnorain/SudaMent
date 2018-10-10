@@ -206,7 +206,7 @@ def welcomeUser():
               return render_template('mentorPage.html')
        elif user.role=='admin':
               return render_template('adminPage.html')
-@app.route('/admin/users')
+@app.route('/admin/users', methods = ['GET'])
 def showUsers():
        if 'username' not in login_session:
               return redirect('/')
@@ -237,8 +237,8 @@ def showUser(userID):
 def editUser(userID):
        if 'username' not in login_session:
               return redirect('/')
-       userID=login_session['user_id']
-       user = session.query(User).filter_by(id=userID).one()
+       adminID=login_session['user_id']
+       user = session.query(User).filter_by(id=adminID).one()
        if user.role=='admin':
               userToEdit=session.query(User).filter_by(id=userID).one()
               if request.method=='POST':
@@ -254,25 +254,44 @@ def editUser(userID):
        
               
        
-@app.route('/admin/users/<int:userID>/delete')
+@app.route('/admin/users/<int:userID>/delete', methods=['GET','POST'])
 def deleteUser(userID):
        if 'username' not in login_session:
               return redirect('/')
        currentUserID=login_session['user_id']
        currentUser=session.query(User).filter_by(id=currentUserID).one()
        if currentUser.role=='admin':
-              return"here we delete the user"
+              #return"here we delete the user"
+              userToDelete=session.query(User).filter_by(id=userID).one()
+              if request.method=='POST':
+                     session.delete(userToDelete)
+                     session.commit()
+                     return redirect(url_for('showUsers'))
+              else:
+                     return render_template('deleteuser.html', user=userToDelete)
        else:
               return redirect(url_for('welcomeUser'))
 
-@app.route('/admin/users/add')
+@app.route('/admin/users/add', methods=['GET','POST'])
 def addUser():
        if 'username' not in login_session:
               return redirect('/')
        currentUserID=login_session['user_id']
        currentUser=session.query(User).filter_by(id=currentUserID).one()
        if currentUser.role=='admin':
-              return'here we add a user'
+              #return'here we add a user'
+              if request.method=='POST':
+                     if request.form['name']:
+                            newUser=User(name=request.form['name'])
+                     if request.form['email']:
+                            newUser.email=request.form['email']
+                     if request.form['role']:
+                            newUser.role=request.form['role']
+                     session.add(newUser)
+                     session.commit()
+                     return redirect(url_for(showUsers))
+              else:
+                     return render_template('addUser.html')
        else:
               return redirect(url_for('welcomeUser'))
        
