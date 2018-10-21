@@ -6,7 +6,12 @@
 <body>
 	<h1>صفحةالمتابعة</h1>
 	<h2>جدول الاسبوع</h2>
-	<li>سورة النور حفظ من  الاية 1-20 </li>
+	{%for studentTask in studentTasks%}
+	  <li>{{studentTask.name}}</li>
+	  <li>{{studentTask.status}}</li>
+	{%endfor%}  
+	
+	
 	<h2>Mentor Information:</h2>
 	<label>NAME:</label>
 	{{mentor.name}}
@@ -15,7 +20,7 @@
 	{{mentor.email}}
 	</br>
 	<label>Phone no:</label>
-	+123456789
+	{{mentor.phone}}
 	</br>
 	<a href="{{url_for('gdisconnect')}}"><button>log out</button></a>
 

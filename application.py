@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, url_for, redirect
 from flask import flash, jsonify
 from sqlalchemy import create_engine, asc
 from sqlalchemy.orm import sessionmaker
-from models import Base, User, Subject
+from models import Base, User, Task, StudentTask
 from flask import session as login_session
 import random
 import string
@@ -201,11 +201,14 @@ def welcomeUser():
        if user.role== 'user':
               return"You Are Not Registered Yet"
        elif user.role=='student':
-              mentor=session.query(User).filter_by(id=user.mentor_id).one()
-              return render_template('studenPage.html',user=user,mentor=mentor)
+              studentTasks=session.query(StudentTask).filter_by(student_id=user.id).all()
+              if user.mentor_id:
+                     mentor=session.query(User).filter_by(id=user.mentor_id).one()
+                     return render_template('studenPage.html',user=user,mentor=mentor,studentTasks=studentTasks)
+              return render_template('studenPage.html',user=user,mentor=None,studentTasks=studentTasks)
        elif user.role=='mentor':
               students=session.query(User).filter_by(mentor_id=user.id).all()
-              return render_template('mentorPage.html', students=students)
+              return render_template('mentorPage.html', students=students,mentorID=user.id)
        elif user.role=='admin':
               return render_template('adminPage.html')
 @app.route('/admin/users', methods = ['GET'])
@@ -248,6 +251,8 @@ def editUser(userID):
                             userToEdit.role = request.form['role']
                      if request.form['id']:
                             userToEdit.mentor_id= request.form['id']
+                     if request.form['phone']:
+                            userToEdit.phone= request.form['phone']
                      session.add(userToEdit)
                      session.commit()
                      return redirect(url_for('showUser',userID=userToEdit.id))
@@ -298,9 +303,92 @@ def addUser():
                      return render_template('addUser.html')
        else:
               return redirect(url_for('welcomeUser'))
-       
 
-	
+@app.route('/admin/task/add', methods=['GET','POST'])
+def addTask():
+       if request.method=='POST':
+              if request.form['name']:
+                     newTask=Task(name=request.form['name'], added='False')
+              if request.form['date']:
+                     newTask.date=request.form['date']       
+              session.add(newTask)
+              session.commit()
+              return redirect(url_for('showTasks'))
+       else:
+              return render_template('addtask.html')
+@app.route('/admin/task/show')
+def showTasks():
+       tasks=session.query(Task).all()
+       return render_template('showtasks.html', tasks=tasks)
+@app.route('/admin/task/<int:taskID>/delete', methods= ['GET','POST'])
+def deleteTask(taskID):
+       taskToDelete=session.query(Task).filter_by(id=taskID).one()
+       if request.method=='POST':
+              session.delete(taskToDelete)
+              session.commit()
+              return redirect(url_for('showTasks'))
+       else:
+              return render_template('deletetask.html',task=taskToDelete)
+
+@app.route('/admin/task/<int:taskID>/addtoallstudents', methods=['GET','POST'])
+def addTaskToAllStudents(taskID):
+       task = session.query(Task).filter_by(id=taskID).one()
+       if request.method == 'POST':
+              students=session.query(User).filter_by(role='student').all()
+              for student in students:
+                     newTask= StudentTask(name=task.name, date=task.date, student_id=student.id,task_id=task.id, status='pending')
+                     session.add(newTask)
+                     session.commit()
+              task.added='True'
+              session.add(task)
+              session.commit()
+              return redirect(url_for('showTasks'))
+       else:
+              return render_template('addtasktoallstudents.html', task=task)
+@app.route('/admin/task/<int:taskID>/deletetoallstudents', methods=['GET','POST'])
+def deleteTaskToAllStudents(taskID):
+       originalTask= session.query(Task).filter_by(id=taskID).one()
+       tasksToDelete = session.query(StudentTask).filter_by(task_id=taskID).all()
+       if request.method=='POST':
+              for task in tasksToDelete:
+                     session.delete(task)
+                     session.commit()
+              originalTask.added='False'       
+              return redirect(url_for('showTasks'))
+       else:
+              return render_template('deletetasktoallstudents.html',taskID=taskID)
+       
+@app.route('/student/task/show')
+def showAllStudentTasks():
+       studentTasks=session.query(StudentTask).all()
+       return render_template('showallstudenttasks.html', studentTasks=studentTasks)
+
+@app.route('/welcome/mentor/<int:mentorID>/student/<int:studentID>')
+def showStudent(mentorID,studentID):
+       #show student information to his mentor
+       student= session.query(User).filter_by(id=studentID).one()
+       if student.mentor_id==mentorID:
+              tasks=session.query(StudentTask).filter_by(student_id=studentID).all()
+              return render_template('showstudent.html',tasks=tasks,studentID=studentID,mentorID=mentorID)
+       else:
+               return"this is not your student"
+
+@app.route('/mentor/<int:mentorID>/student/<int:studentID>/mark/<int:studentTaskID>/done')
+def markAsDone(studentID,mentorID,studentTaskID):
+       student=session.query(User).filter_by(id=studentID).one()
+       if student.mentor_id==mentorID:
+              taskToMark=session.query(id=studentTaskID).one()
+              if request.method=='POST':
+                     taskToMark.status='Done'
+                     session.add(taskToMark)
+                     session.commit()
+                     return redirect(url_for('showStudent',studentID=studentID,mentorID=mentorID))
+              else:
+                     return render_template('marktaskasdone.html',studentID=studentID,mentorID=mentorID,studentTaskID=studentTaskID)
+              
+       else:
+              return "you are not allowed to change this task"
+              
 if __name__ == '__main__':
         app.secret_key = 'super_secret_key'
 	app.debug = True

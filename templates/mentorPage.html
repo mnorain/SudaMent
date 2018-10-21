@@ -7,7 +7,7 @@
      <h1>This is the mentor page</h1>
      {%for student in students%}
          <li>
-         	{{student.name}}
+         	<a href="url_for('showStudent',studentID=student.id,mentorID=mentorID)">{{student.name}}</a>
          </li>
      {%endfor%}    
 </body>
